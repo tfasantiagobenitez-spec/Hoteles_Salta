@@ -1,0 +1,5 @@
+{
+  "name": "Hotel Group Dashboard",
+  "description": "Real-time hotel performance dashboard connecting to Google Sheets, featuring competition analysis, revenue breakdown, expense structure, and operational KPIs.",
+  "requestFramePermissions": []
+}
