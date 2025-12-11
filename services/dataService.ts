@@ -136,6 +136,34 @@ export const fetchSheetData = async (): Promise<SheetRow[]> => {
     const separator = detectSeparator(lines[0]);
     console.log(`Detected separator: ${separator}`);
 
+    const headerLine = lines[0];
+    const headers = parseCSVLine(headerLine, separator).map(h => h.trim().replace(/^"|"$/g, ''));
+    console.log("Debug: Headers:", headers);
+
+    const getIndex = (name: string) => headers.findIndex(h => h.toLowerCase() === name.toLowerCase());
+
+    const idx = {
+      Hotel: getIndex('Hotel'),
+      Concepto: getIndex('Concepto'),
+      Grupo: getIndex('Grupo'),
+      Mes: getIndex('Mes'),
+      Valor: getIndex('Valor'),
+      Unidad: getIndex('Unidad'),
+      Canal: getIndex('Canal')
+    };
+
+    // Fallback indices if headers not found (backward compatibility)
+    if (idx.Hotel === -1) idx.Hotel = 0;
+    if (idx.Concepto === -1) idx.Concepto = 1;
+    if (idx.Grupo === -1) idx.Grupo = 2;
+    if (idx.Mes === -1) idx.Mes = 3;
+    if (idx.Valor === -1) idx.Valor = 4;
+    // Unidad/Canal might differ, keep safe defaults 5, 6
+    if (idx.Unidad === -1) idx.Unidad = 5;
+    if (idx.Canal === -1) idx.Canal = 6;
+
+    console.log("Debug: Column Indices:", idx);
+
     const parsedData: SheetRow[] = [];
 
     for (let i = 1; i < lines.length; i++) {
@@ -146,13 +174,13 @@ export const fetchSheetData = async (): Promise<SheetRow[]> => {
       if (cols.length < 5) continue;
 
       const row: SheetRow = {
-        Hotel: (cols[0] || '').trim(),
-        Concepto: (cols[1] || '').trim(),
-        Grupo: (cols[2] || '').trim(),
-        Mes: (cols[3] || '').trim(), // Mes might need trimming too 
-        Valor: parseNumber(cols[4] || '0'),
-        Unidad: (cols[5] || '').trim(),
-        Canal: (cols[6] || '').trim()
+        Hotel: (cols[idx.Hotel] || '').trim(),
+        Concepto: (cols[idx.Concepto] || '').trim(),
+        Grupo: (cols[idx.Grupo] || '').trim(),
+        Mes: (cols[idx.Mes] || '').trim(),
+        Valor: parseNumber(cols[idx.Valor] || '0'),
+        Unidad: (cols[idx.Unidad] || '').trim(),
+        Canal: (cols[idx.Canal] || '').trim()
       };
 
       if (i < 5) { // Log first few rows
