@@ -194,10 +194,14 @@ export const fetchSheetData = async (): Promise<SheetRow[]> => {
         Canal: (cols[idx.Canal] || '').trim()
       };
 
+      if (i < 5) {
+        console.log(`Debug Row ${i}:`, row);
+      }
       parsedData.push(row);
     }
 
-    // if (parsedData.length === 0) { ... }
+    const uniqueConcepts = Array.from(new Set(parsedData.map(r => r.Concepto)));
+    console.log("Debug: Found Concepts:", uniqueConcepts);
 
     if (parsedData.length === 0) {
       console.warn("Parsed 0 rows from Google Sheet. Using mock data.");
