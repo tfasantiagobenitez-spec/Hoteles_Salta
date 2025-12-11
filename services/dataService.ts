@@ -1,7 +1,7 @@
 import { SheetRow, HotelName } from '../types';
 
 // The ID provided in the prompt
-const SHEET_ID = '14xctwpuX1W1tQ-R_DK1ESCXPTf6bZvzycDbO8tBDk4Y';
+const SHEET_ID = '1O8h9DwB21IL4jOQaDQrqO4-4eAmvdStelSNC4Y-ZShs';
 
 // Using the Google Visualization API endpoint usually avoids 400 errors 
 // that occur with the /export endpoint on certain shared sheet configurations.
