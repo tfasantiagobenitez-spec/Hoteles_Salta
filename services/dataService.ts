@@ -142,19 +142,27 @@ export const fetchSheetData = async (): Promise<SheetRow[]> => {
 
     const getIndex = (name: string) => headers.findIndex(h => h.toLowerCase() === name.toLowerCase());
 
+    // Support alternative header names found in new sheets
+    let idxValor = getIndex('Valor');
+    if (idxValor === -1) idxValor = getIndex('Valor_num');
+    if (idxValor === -1) idxValor = getIndex('Valor_raw');
+
+    let idxConcepto = getIndex('Concepto');
+    if (idxConcepto === -1) idxConcepto = getIndex('Concepto_original');
+
     const idx = {
       Hotel: getIndex('Hotel'),
-      Concepto: getIndex('Concepto'),
+      Concepto: idxConcepto,
       Grupo: getIndex('Grupo'),
       Mes: getIndex('Mes'),
-      Valor: getIndex('Valor'),
+      Valor: idxValor,
       Unidad: getIndex('Unidad'),
       Canal: getIndex('Canal')
     };
 
     // Fallback indices if headers not found (backward compatibility)
     if (idx.Hotel === -1) idx.Hotel = 0;
-    if (idx.Concepto === -1) idx.Concepto = 1;
+    if (idx.Concepto === -1) idx.Concepto = 1; // Default
     if (idx.Grupo === -1) idx.Grupo = 2;
     if (idx.Mes === -1) idx.Mes = 3;
     if (idx.Valor === -1) idx.Valor = 4;
@@ -186,14 +194,10 @@ export const fetchSheetData = async (): Promise<SheetRow[]> => {
         Canal: (cols[idx.Canal] || '').trim()
       };
 
-      if (i < 5) { // Log first few rows
-        console.log(`Debug Row ${i}: RawVal='${rawVal}', Parsed=${parsedVal}`, row);
-      }
       parsedData.push(row);
     }
 
-    const uniqueConcepts = Array.from(new Set(parsedData.map(r => r.Concepto)));
-    console.log("Debug: Found Concepts:", uniqueConcepts);
+    // if (parsedData.length === 0) { ... }
 
     if (parsedData.length === 0) {
       console.warn("Parsed 0 rows from Google Sheet. Using mock data.");
