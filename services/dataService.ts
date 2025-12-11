@@ -47,13 +47,13 @@ const parseNumber = (val: string): number => {
   if (!isNaN(Number(clean))) return Number(clean);
 
   if (clean.indexOf('.') !== -1 && clean.indexOf(',') !== -1) {
-      if (clean.lastIndexOf(',') > clean.lastIndexOf('.')) {
-          clean = clean.replace(/\./g, '').replace(',', '.');
-      } else {
-          clean = clean.replace(/,/g, '');
-      }
+    if (clean.lastIndexOf(',') > clean.lastIndexOf('.')) {
+      clean = clean.replace(/\./g, '').replace(',', '.');
+    } else {
+      clean = clean.replace(/,/g, '');
+    }
   } else if (clean.indexOf(',') !== -1) {
-      clean = clean.replace(',', '.');
+    clean = clean.replace(',', '.');
   }
 
   return parseFloat(clean) || 0;
@@ -71,19 +71,19 @@ const generateMockData = (): SheetRow[] => {
   hotels.forEach(hotel => {
     months.forEach(month => {
       const seasonality = (month === '2023-01' || month === '2023-07') ? 1.5 : 1.0;
-      
+
       // Ingresos
       const direct = (Math.random() * 50000 + 20000) * seasonality;
       const ota = (Math.random() * 40000 + 15000) * seasonality;
       const rest = (Math.random() * 15000 + 5000) * seasonality;
       const events = Math.random() * 10000;
-      
-      data.push({ Hotel: hotel, Concepto: 'Directos', Grupo: 'Ingresos Alojamiento', Mes: month, Valor: direct, Unidad: '$' });
-      data.push({ Hotel: hotel, Concepto: 'Booking', Grupo: 'Ingresos Alojamiento', Mes: month, Valor: ota * 0.6, Unidad: '$' });
-      data.push({ Hotel: hotel, Concepto: 'Despegar', Grupo: 'Ingresos Alojamiento', Mes: month, Valor: ota * 0.4, Unidad: '$' });
-      data.push({ Hotel: hotel, Concepto: 'Restaurante', Grupo: 'Ingresos Otros', Mes: month, Valor: rest, Unidad: '$' });
-      data.push({ Hotel: hotel, Concepto: 'Eventos', Grupo: 'Ingresos Otros', Mes: month, Valor: events, Unidad: '$' });
-      
+
+      data.push({ Hotel: hotel, Concepto: 'Directos', Grupo: 'Ingresos Alojamiento', Mes: month, Valor: direct, Unidad: '$', Canal: 'Directos' });
+      data.push({ Hotel: hotel, Concepto: 'Booking', Grupo: 'Ingresos Alojamiento', Mes: month, Valor: ota * 0.6, Unidad: '$', Canal: 'Booking' });
+      data.push({ Hotel: hotel, Concepto: 'Despegar', Grupo: 'Ingresos Alojamiento', Mes: month, Valor: ota * 0.4, Unidad: '$', Canal: 'Despegar' });
+      data.push({ Hotel: hotel, Concepto: 'Restaurante', Grupo: 'Ingresos Otros', Mes: month, Valor: rest, Unidad: '$', Canal: 'Restaurante' });
+      data.push({ Hotel: hotel, Concepto: 'Eventos', Grupo: 'Ingresos Otros', Mes: month, Valor: events, Unidad: '$', Canal: 'Eventos' });
+
       const totalIngresos = direct + ota + rest + events;
       data.push({ Hotel: hotel, Concepto: 'TOTAL INGRESOS DEL MES', Grupo: 'Resumen', Mes: month, Valor: totalIngresos, Unidad: '$' });
 
@@ -103,7 +103,7 @@ const generateMockData = (): SheetRow[] => {
       data.push({ Hotel: hotel, Concepto: 'RESULTADO', Grupo: 'Resumen', Mes: month, Valor: totalIngresos - totalEgresos, Unidad: '$' });
 
       // KPIs
-      data.push({ Hotel: hotel, Concepto: 'Ocupación', Grupo: 'KPIs', Mes: month, Valor: Math.min(Math.random() * 40 + 50 * seasonality, 100), Unidad: '%' }); 
+      data.push({ Hotel: hotel, Concepto: 'Ocupación', Grupo: 'KPIs', Mes: month, Valor: Math.min(Math.random() * 40 + 50 * seasonality, 100), Unidad: '%' });
       data.push({ Hotel: hotel, Concepto: 'ADR', Grupo: 'KPIs', Mes: month, Valor: Math.random() * 50 + 100, Unidad: '$' });
       data.push({ Hotel: hotel, Concepto: 'RevPAR', Grupo: 'KPIs', Mes: month, Valor: Math.random() * 50 + 80, Unidad: '$' });
     });
@@ -118,16 +118,16 @@ export const fetchSheetData = async (): Promise<SheetRow[]> => {
     const url = `${CSV_URL}&t=${Date.now()}`;
     console.log(`Fetching data from ${url}`);
     const response = await fetch(url);
-    
+
     if (!response.ok) {
-        throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+      throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
     }
-    
+
     const csvText = await response.text();
-    
+
     if (csvText.trim().toLowerCase().startsWith('<!doctype html') || csvText.includes('<html')) {
-        console.error("Received HTML instead of CSV.");
-        throw new Error("Auth required / Sheet not public");
+      console.error("Received HTML instead of CSV.");
+      throw new Error("Auth required / Sheet not public");
     }
 
     const lines = csvText.split(/\r?\n/);
@@ -137,11 +137,11 @@ export const fetchSheetData = async (): Promise<SheetRow[]> => {
     console.log(`Detected separator: ${separator}`);
 
     const parsedData: SheetRow[] = [];
-    
+
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i];
       if (!line.trim()) continue;
-      
+
       const cols = parseCSVLine(line, separator);
       if (cols.length < 5) continue;
 
@@ -151,7 +151,8 @@ export const fetchSheetData = async (): Promise<SheetRow[]> => {
         Grupo: cols[2],
         Mes: cols[3],
         Valor: parseNumber(cols[4]),
-        Unidad: cols[5] || ''
+        Unidad: cols[5] || '',
+        Canal: cols[6] || ''
       };
 
       parsedData.push(row);

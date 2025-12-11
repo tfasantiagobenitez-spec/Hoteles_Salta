@@ -5,6 +5,7 @@ export interface SheetRow {
   Mes: string;   // e.g., '2023-10' or 'Octubre'
   Valor: number;
   Unidad: string; // e.g., '$', '%', 'Noche'
+  Canal?: string; // e.g., 'Booking', 'Directos'
 }
 
 export enum HotelName {
