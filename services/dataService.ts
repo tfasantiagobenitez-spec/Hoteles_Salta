@@ -173,18 +173,21 @@ export const fetchSheetData = async (): Promise<SheetRow[]> => {
       const cols = parseCSVLine(line, separator);
       if (cols.length < 5) continue;
 
+      const rawVal = cols[idx.Valor];
+      const parsedVal = parseNumber(rawVal || '0');
+
       const row: SheetRow = {
         Hotel: (cols[idx.Hotel] || '').trim(),
         Concepto: (cols[idx.Concepto] || '').trim(),
         Grupo: (cols[idx.Grupo] || '').trim(),
         Mes: (cols[idx.Mes] || '').trim(),
-        Valor: parseNumber(cols[idx.Valor] || '0'),
+        Valor: parsedVal,
         Unidad: (cols[idx.Unidad] || '').trim(),
         Canal: (cols[idx.Canal] || '').trim()
       };
 
       if (i < 5) { // Log first few rows
-        console.log(`Debug Row ${i}: `, row);
+        console.log(`Debug Row ${i}: RawVal='${rawVal}', Parsed=${parsedVal}`, row);
       }
       parsedData.push(row);
     }
