@@ -146,27 +146,30 @@ export const fetchSheetData = async (): Promise<SheetRow[]> => {
       if (cols.length < 5) continue;
 
       const row: SheetRow = {
-        Hotel: cols[0],
-        Concepto: cols[1],
-        Grupo: cols[2],
-        Mes: cols[3],
-        Valor: parseNumber(cols[4]),
-        Unidad: cols[5] || '',
-        Canal: cols[6] || ''
+        Hotel: (cols[0] || '').trim(),
+        Concepto: (cols[1] || '').trim(),
+        Grupo: (cols[2] || '').trim(),
+        Mes: (cols[3] || '').trim(), // Mes might need trimming too 
+        Valor: parseNumber(cols[4] || '0'),
+        Unidad: (cols[5] || '').trim(),
+        Canal: (cols[6] || '').trim()
       };
 
-      if (i === 1) { // Log the first data row (after header)
-        console.log("Debug: First parsed Row:", row);
+      if (i < 5) { // Log first few rows
+        console.log(`Debug Row ${i}: `, row);
       }
       parsedData.push(row);
     }
+
+    const uniqueConcepts = Array.from(new Set(parsedData.map(r => r.Concepto)));
+    console.log("Debug: Found Concepts:", uniqueConcepts);
 
     if (parsedData.length === 0) {
       console.warn("Parsed 0 rows from Google Sheet. Using mock data.");
       return generateMockData();
     }
 
-    console.log(`Successfully parsed ${parsedData.length} rows.`);
+    console.log(`Successfully parsed ${parsedData.length} rows`);
     return parsedData;
 
   } catch (error) {
