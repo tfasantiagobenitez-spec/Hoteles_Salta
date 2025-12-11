@@ -185,7 +185,7 @@ export const fetchSheetData = async (): Promise<SheetRow[]> => {
       const parsedVal = parseNumber(rawVal || '0');
 
       const row: SheetRow = {
-        Hotel: (cols[idx.Hotel] || '').trim(),
+        Hotel: (cols[idx.Hotel] || '').trim().replace(/^Hotel\s+/i, ''),
         Concepto: (cols[idx.Concepto] || '').trim(),
         Grupo: (cols[idx.Grupo] || '').trim(),
         Mes: (cols[idx.Mes] || '').trim(),
