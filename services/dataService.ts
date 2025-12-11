@@ -155,6 +155,9 @@ export const fetchSheetData = async (): Promise<SheetRow[]> => {
         Canal: cols[6] || ''
       };
 
+      if (i === 1) { // Log the first data row (after header)
+        console.log("Debug: First parsed Row:", row);
+      }
       parsedData.push(row);
     }
 

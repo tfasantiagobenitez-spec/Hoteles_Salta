@@ -1,9 +1,9 @@
 
 export const parseMonthValue = (monthStr: string): number => {
   if (!monthStr) return 0;
-  
+
   const lower = monthStr.toLowerCase().trim();
-  
+
   // Handle ISO format YYYY-MM
   if (lower.match(/^\d{4}-\d{2}$/)) {
     return parseInt(lower.replace('-', ''), 10);
@@ -30,7 +30,16 @@ export const parseMonthValue = (monthStr: string): number => {
     if (lower.includes(key)) {
       // Try to find year
       const yearMatch = lower.match(/\d{4}/);
-      const year = yearMatch ? yearMatch[0] : new Date().getFullYear().toString(); // Default to current year if missing
+      let year = yearMatch ? yearMatch[0] : new Date().getFullYear().toString();
+
+      // Support 2-digit year (e.g., jan-23)
+      if (!yearMatch) {
+        const twoDigitMatch = lower.match(/-(\d{2})$/) || lower.match(/\s(\d{2})$/);
+        if (twoDigitMatch) {
+          year = '20' + twoDigitMatch[1];
+        }
+      }
+
       return parseInt(`${year}${val}`, 10);
     }
   }
